@@ -12,7 +12,7 @@ function App() {
     <BrowserRouter>
       <Routes>
          <Route path="/" element={<LoginRegisterPage />} />
-        {/* <Route path="/login" element={<LoginRegisterPage />} /> */}
+        <Route path="/login" element={<LoginRegisterPage />} />
         <Route path="/chatbotcr" element={<CustomerRegChatbot />} />
         <Route path="/chatbottr" element={<TravelRecommChatbot />} />
         <Route path="/customerreg" element={<CustomerRegistrationForm />} />
