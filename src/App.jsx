@@ -5,6 +5,7 @@ import CustomerRegChatbot from './pages/Chatbot/CustomerRegChatbot.jsx'
 import TravelRecommChatbot from './pages/Chatbot/TravelRecommChatbot.jsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import NotFoundPage from './pages/NotFoundPage.jsx'
 function App() {
   return (
     <>
@@ -16,7 +17,7 @@ function App() {
         <Route path="/chatbotcr" element={<CustomerRegChatbot />} />
         <Route path="/chatbottr" element={<TravelRecommChatbot />} />
         <Route path="/customerreg" element={<CustomerRegistrationForm />} />
-        <Route path="/*" element={<h1 className="text-center mt-20 text-3xl">404 - Page Not Found</h1>} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
 
