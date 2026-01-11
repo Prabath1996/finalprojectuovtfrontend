@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react"
-import { Send, MapPin, Compass, Plane, Bot, User } from "lucide-react"
+import { Send, MapPin, Compass, Plane, Bot, User, FileUp, Upload } from "lucide-react"
 import axios from "axios"
+import { SpinnerCircular } from 'spinners-react';
+
 
 const TripPlannerChatbot = () => {
   const [messages, setMessages] = useState([
@@ -13,12 +15,17 @@ const TripPlannerChatbot = () => {
         minute: "2-digit",
       }),
     },
-  ])
+  ]);
+ 
+  const [isUploadDisabled, setIsUploadDisabled] = useState(false);
+
 
   const [inputValue, setInputValue] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const[isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef(null)
 
+  const fileInputRef = useRef(null)
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
@@ -78,7 +85,59 @@ const formattedText = (text) => {
   return formattedLines.join("\n");
 };
 
+// File upload handler
+const handleFileUpload = async (files) => {
+  if (!files || files.length === 0) return;
 
+  const file = files[0];
+  const formData = new FormData();
+  formData.append("file", file);
+
+  setIsLoading(true);
+
+  try {
+    await axios.post("http://localhost:5000/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setIsUploadDisabled(true);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        sender: "bot",
+        text: `File "${file.name}" uploaded successfully! You can now ask questions related to its content.`,
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
+    ]);
+
+    setTimeout(() => {
+      setIsUploadDisabled(false);
+      setIsLoading(false);
+    }, 5000);
+
+  } catch (error) {
+    setIsLoading(false);
+    setIsUploadDisabled(false);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        sender: "bot",
+        text: "Failed to upload file. Please try again.",
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
+    ]);
+  }
+};
 
 
   useEffect(() => {
@@ -238,6 +297,41 @@ const formattedText = (text) => {
             >
               <Send className="w-5 h-5" />
             </button>
+            <div>
+  {/* Hidden file input */}
+  <input
+    type="file"
+    ref={fileInputRef}
+    style={{ display: "none" }}
+    onChange={(e) => handleFileUpload(e.target.files)}
+  />
+
+  {/* Styled button */}
+<button
+  type="button"
+  disabled={isUploadDisabled || isLoading}
+  onClick={() => fileInputRef.current?.click()}
+  className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 
+             hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 
+             disabled:cursor-not-allowed text-white font-semibold rounded-xl 
+             transition-all transform hover:scale-105 active:scale-95 
+             flex items-center justify-center"
+>
+  <div className="w-5 h-5 flex items-center justify-center">
+    {!isLoading ? (
+      <FileUp className="w-5 h-5" />
+    ) : (
+      <SpinnerCircular
+        size={18}
+        thickness={180}
+        speed={140}
+        color="white"
+      />
+    )}
+  </div>
+</button>
+
+</div>
           </form>
         </div>
       </div>
