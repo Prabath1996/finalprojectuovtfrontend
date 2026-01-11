@@ -32,10 +32,15 @@ import {
   MoreVertical,
 } from "lucide-react";
 import Loading from "../../components/Loading";
-const TravelChatbot = () => (
-  <div className="flex items-center justify-center h-full text-slate-400">
-    Chatbot interface would go here.
-  </div>
+import CustomerRegChatbot from "../Chatbot/CustomerRegChatbot";
+import TravelRecommChatbot from "../Chatbot/TravelRecommChatbot";
+
+
+const CustomerRegisterChatbot = () => (
+  <CustomerRegChatbot />
+);
+const TravelModeRecomChatbot = () => (
+  <TravelRecommChatbot />
 );
 
 const Home = () => {
@@ -71,8 +76,8 @@ const Home = () => {
   const sidebarItems = [
     { id: "dashboard", icon: LayoutDashboard, label: "Overview" },
     { id: "customer", icon: UserRound, label: "Customer List" },
-    { id: "trips", icon: Plane, label: "My Trips" },
-    { id: "chatbot", icon: Bot, label: "Travel AI Bot" },
+    { id: "trips", icon: Plane, label: "Travel Recommondation" },
+    { id: "chatbot", icon: Bot, label: "Customer Register" },
     { id: "bookmarks", icon: Star, label: "Bookmarks" },
     { id: "settings", icon: Settings, label: "Settings" },
   ];
@@ -122,13 +127,44 @@ const Home = () => {
   const getStatusStyle = (status) => {
     switch (status) {
       case "Completed":
-        return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+        return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
       case "Planning":
-        return "bg-amber-500/10 text-amber-600 dark:text-amber-400";
+        return "bg-amber-500/10 text-amber-600 dark:text-amber-400"
       default:
-        return "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400";
+        return "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
     }
-  };
+  }
+
+  const handleEditClick = (customer) => {
+    setEditingCustomer(customer)
+    setEditFormData({ ...customer })
+    setShowEditModal(true)
+  }
+
+  const handleDeleteClick = (customerId) => {
+    setShowDeleteModal(customerId)
+  }
+
+  const handleStatusClick = (customerId) => {
+    setShowStatusModal(customerId)
+  }
+
+  const handleUpdateCustomer = () => {
+    setCustomers(customers.map((c) => (c.id === editFormData.id ? editFormData : c)))
+    setShowEditModal(false)
+    setEditingCustomer(null)
+  }
+
+  const handleDeleteCustomer = () => {
+    setCustomers(customers.filter((c) => c.id !== showDeleteModal))
+    setShowDeleteModal(null)
+  }
+
+  const handleStatusChange = (newStatus) => {
+    setCustomers(customers.map((c) => (c.id === showStatusModal ? { ...c, status: newStatus } : c)))
+    setShowStatusModal(null)
+  }
+
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-200 flex overflow-hidden font-sans transition-colors duration-300">
@@ -518,10 +554,11 @@ const Home = () => {
                       </div>
 
                       <div className="grid grid-cols-3 gap-2 border-t border-slate-100 dark:border-white/5 pt-4">
-                        <button
-                          title="Edit"
-                          className="flex items-center justify-center p-2.5 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors border border-transparent hover:border-blue-200 dark:hover:border-blue-500/20"
-                        >
+                            <button
+                        onClick={() => handleEditClick(customer)}
+                        title="Edit"
+                        className="flex items-center justify-center p-2.5 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors border border-transparent hover:border-blue-200 dark:hover:border-blue-500/20"
+                      >
                           <Pencil className="w-4 h-4" />
                         </button>
                         <button
@@ -546,13 +583,19 @@ const Home = () => {
 
           {activeTab === "chatbot" && (
             <div className="h-full animate-in zoom-in-95 duration-300">
-              <TravelChatbot />
+              <CustomerRegisterChatbot />
+            </div>
+          )}
+           {activeTab === "trips" && (
+            <div className="h-full animate-in zoom-in-95 duration-300">
+             <TravelModeRecomChatbot />
             </div>
           )}
 
           {activeTab !== "dashboard" &&
             activeTab !== "chatbot" &&
-            activeTab !== "customer" && (
+            activeTab !== "customer" &&
+            activeTab !== "trips" && (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-20">
                 <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center border border-slate-200 dark:border-white/10">
                   <Settings className="w-10 h-10 text-slate-400 dark:text-slate-600" />

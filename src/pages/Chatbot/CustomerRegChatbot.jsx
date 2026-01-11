@@ -7,7 +7,7 @@ const CustomerRegChatbot = () => {
     {
       id: 1,
       sender: "bot",
-      text: "Hello! I'm your travel assistant. I can help you register customers. How can I assist you today?",
+      text: "Hello! I'm your customer registration agent. I can help you register customers. How can I assist you today?",
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
