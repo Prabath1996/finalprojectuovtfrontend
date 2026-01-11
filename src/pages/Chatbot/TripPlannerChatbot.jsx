@@ -96,7 +96,7 @@ const handleFileUpload = async (files) => {
   setIsLoading(true);
 
   try {
-    await axios.post("http://localhost:5000/upload", formData, {
+    await axios.post("http://localhost:5001/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
@@ -162,7 +162,7 @@ const handleFileUpload = async (files) => {
     setIsTyping(true)
 
     try {
-      const response = await axios.post("http://localhost:5000/chat", {
+      const response = await axios.post("http://localhost:5001/chat", {
         query: text
       })
 
