@@ -30,17 +30,23 @@ import {
   Trash2,
   CheckCircle2,
   MoreVertical,
+  Map,
+  NotebookPen
 } from "lucide-react";
 import Loading from "../../components/Loading";
 import CustomerRegChatbot from "../Chatbot/CustomerRegChatbot";
 import TravelRecommChatbot from "../Chatbot/TravelRecommChatbot";
-
+import TripPlannerChatbot from "../Chatbot/TripPlannerChatbot";
 
 const CustomerRegisterChatbot = () => (
   <CustomerRegChatbot />
 );
 const TravelModeRecomChatbot = () => (
   <TravelRecommChatbot />
+);
+
+const TravelPlanChatbot = () => (
+  <TripPlannerChatbot />
 );
 
 const Home = () => {
@@ -77,8 +83,8 @@ const Home = () => {
     { id: "dashboard", icon: LayoutDashboard, label: "Overview" },
     { id: "customer", icon: UserRound, label: "Customer List" },
     { id: "trips", icon: Plane, label: "Travel Recommondation" },
-    { id: "chatbot", icon: Bot, label: "Customer Register" },
-    { id: "bookmarks", icon: Star, label: "Bookmarks" },
+    { id: "chatbot", icon: NotebookPen, label: "Customer Register" },
+    { id: "tripplanner", icon: Map, label: "Trip Planner" },
     { id: "settings", icon: Settings, label: "Settings" },
   ];
 
@@ -591,11 +597,17 @@ const Home = () => {
              <TravelModeRecomChatbot />
             </div>
           )}
+               {activeTab === "tripplanner" && (
+            <div className="h-full animate-in zoom-in-95 duration-300">
+            <TripPlannerChatbot />
+            </div>
+          )}
 
           {activeTab !== "dashboard" &&
             activeTab !== "chatbot" &&
             activeTab !== "customer" &&
-            activeTab !== "trips" && (
+            activeTab !== "trips" &&
+            activeTab !== "tripplanner" && (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-20">
                 <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center border border-slate-200 dark:border-white/10">
                   <Settings className="w-10 h-10 text-slate-400 dark:text-slate-600" />
