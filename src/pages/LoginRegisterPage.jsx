@@ -148,7 +148,7 @@ const LoginRegisterPage = () => {
                       onSubmit={async (values, { setSubmitting }) => {
                         try {
                           const res = await axios.post(
-                            "http://localhost:3001/api/users/login",
+                            "https://finalprojectbackend-five.vercel.app/api/users/login",
                             values,
                             { withCredentials: true }
                           );
@@ -292,7 +292,7 @@ const LoginRegisterPage = () => {
                         try {
                           setSubmitting(true);
                           const res = await axios.post(
-                            "http://localhost:3001/api/users/signup",
+                            "https://finalprojectbackend-five.vercel.app/api/users/signup",
                             values,
                             { withCredentials: true }
                           );

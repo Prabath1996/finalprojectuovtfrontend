@@ -117,16 +117,16 @@ const Home = () => {
 
   const upcomingTrips = [
     {
-      destination: "Bali, Indonesia",
+      destination: "Galle Fort, Sri Lanka",
       date: "Oct 15 - Oct 22",
       status: "Upcoming",
-      image: "/bali-beach-sunset.png",
+      image: "pic4.jpeg",
     },
     {
-      destination: "Santorini, Greece",
+      destination: "Nine Arches Bridge, Sri Lanka",
       date: "Nov 02 - Nov 09",
       status: "Planning",
-      image: "/santorini.png",
+      image: "pic2.jpeg",
     },
   ];
 
@@ -244,14 +244,7 @@ const Home = () => {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="hidden md:flex items-center gap-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full px-4 py-1.5 w-64 lg:w-96 focus-within:border-cyan-500/50 transition-colors">
-              <Search className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search destinations..."
-                className="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-900 dark:text-slate-200"
-              />
-            </div>
+          
           </div>
 
           <div className="flex items-center gap-4">
@@ -318,9 +311,7 @@ const Home = () => {
                     Where are we heading next?
                   </p>
                 </div>
-                <button className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-95">
-                  Plan New Trip
-                </button>
+                
               </div>
 
               {/* Stats Grid */}
