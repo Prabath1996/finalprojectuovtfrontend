@@ -1,27 +1,144 @@
 import { useState, useRef, useEffect } from "react"
-import { Send, MapPin, Compass, Plane, Bot, User } from "lucide-react"
+import { Send, MapPin, Compass, Plane, Bot, User, FileUp, Upload } from "lucide-react"
 import axios from "axios"
+import { SpinnerCircular } from 'spinners-react';
 
-const CustomerRegChatbot = () => {
+
+const TripPlannerChatbot = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: "bot",
-      text: "Hello! I'm your customer registration agent. I can help you register customers. How can I assist you today?",
+      text: "Hello! I'm your Trip Planner Agent. Where would you like to explore today?",
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       }),
     },
-  ])
+  ]);
+ 
+  const [isUploadDisabled, setIsUploadDisabled] = useState(false);
+
 
   const [inputValue, setInputValue] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const[isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef(null)
 
+  const fileInputRef = useRef(null)
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
+
+const formattedText = (text) => {
+  // 1️⃣ Try parsing JSON first
+  try {
+    const data = JSON.parse(text);
+
+    if (typeof data === "object" && data !== null) {
+      let result = "";
+
+      Object.entries(data).forEach(([key, value]) => {
+        let icon = "";
+
+        const k = key.toLowerCase();
+
+        if (k.includes("location") || k.includes("address")) icon = "📍";
+        else if (k.includes("owner") || k.includes("name")) icon = "👤";
+        else if (k.includes("telephone") || k.includes("phone")) icon = "📞";
+        else if (k.includes("rating")) icon = "⭐";
+        else if (k.includes("price")) icon = "💰";
+        else if (k.includes("open")) icon = "🕘";
+        else if (k.includes("close")) icon = "🕔";
+        else icon = "ℹ️";
+
+        result += `${icon} ${key}: ${value}\n`;
+      });
+
+      return result.trim();
+    }
+  } catch (e) {
+    // Not JSON, fallback to plain text formatting
+  }
+
+  // 2️⃣ Handle plain text with bullets or headings
+  const lines = text.split("\n");
+  const formattedLines = lines.map((line) => {
+    const trimmed = line.trim();
+
+    if (!trimmed) return "";
+
+    if (trimmed.startsWith("-")) return `🧭 ${trimmed.slice(1).trim()}`;
+
+    const lower = trimmed.toLowerCase();
+    if (lower.includes("location") || lower.includes("address")) return `📍 ${trimmed}`;
+    if (lower.includes("owner") || lower.includes("name")) return `👤 ${trimmed}`;
+    if (lower.includes("telephone") || lower.includes("phone")) return `📞 ${trimmed}`;
+    if (lower.includes("rating")) return `⭐ ${trimmed}`;
+    if (lower.includes("price")) return `💰 ${trimmed}`;
+    if (lower.includes("open")) return `🕘 ${trimmed}`;
+    if (lower.includes("close")) return `🕔 ${trimmed}`;
+
+    return trimmed;
+  });
+
+  return formattedLines.join("\n");
+};
+
+// File upload handler
+const handleFileUpload = async (files) => {
+  if (!files || files.length === 0) return;
+
+  const file = files[0];
+  const formData = new FormData();
+  formData.append("file", file);
+
+  setIsLoading(true);
+
+  try {
+    await axios.post("http://localhost:5001/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setIsUploadDisabled(true);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        sender: "bot",
+        text: `File "${file.name}" uploaded successfully! You can now ask questions related to its content.`,
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
+    ]);
+
+    setTimeout(() => {
+      setIsUploadDisabled(false);
+      setIsLoading(false);
+    }, 5000);
+
+  } catch (error) {
+    setIsLoading(false);
+    setIsUploadDisabled(false);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        sender: "bot",
+        text: "Failed to upload file. Please try again.",
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
+    ]);
+  }
+};
+
 
   useEffect(() => {
     scrollToBottom()
@@ -45,15 +162,14 @@ const CustomerRegChatbot = () => {
     setIsTyping(true)
 
     try {
-      const response = await axios.post("http://localhost:5000/message", {
-        user_id: "user_001",
-        text,
+      const response = await axios.post("http://localhost:5001/chat", {
+        query: text
       })
 
       const botMessage = {
         id: Date.now() + 1,
         sender: "bot",
-        text: response.data.message || "No response from server.",
+        text: formattedText(response.data?.response) || "No response from server.",
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -94,8 +210,12 @@ const CustomerRegChatbot = () => {
               <Bot className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">GuideBuddy Assistant</h1>
-              <p className="text-sm text-gray-300">Register your customers</p>
+              <h1 className="text-xl font-bold text-white">
+                GuideBuddy Assistant
+              </h1>
+              <p className="text-sm text-gray-300">
+                Get your travel plans sorted out!
+              </p>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
                 <p className="text-sm text-gray-300">Online</p>
@@ -167,21 +287,56 @@ const CustomerRegChatbot = () => {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Register a new customer..."
+              placeholder="Ask me anything about travel..."
               className="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white outline-none"
             />
             <button
               type="submit"
               disabled={!inputValue.trim()}
-              className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all transform hover:scale-105 active:scale-95 disabled:transform-none flex items-center justify-center gap-2 hover: cursor-pointer"
+              className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all transform hover:scale-105 active:scale-95 disabled:transform-none flex items-center justify-center gap-2 hover: cursor"
             >
               <Send className="w-5 h-5" />
             </button>
+            <div>
+  {/* Hidden file input */}
+  <input
+    type="file"
+    ref={fileInputRef}
+    style={{ display: "none" }}
+    onChange={(e) => handleFileUpload(e.target.files)}
+  />
+
+  {/* Styled button */}
+<button
+  type="button"
+  disabled={isUploadDisabled || isLoading}
+  onClick={() => fileInputRef.current?.click()}
+  className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 
+             hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 
+             disabled:cursor-not-allowed text-white font-semibold rounded-xl 
+             transition-all transform hover:scale-105 active:scale-95 
+             flex items-center justify-center"
+>
+  <div className="w-5 h-5 flex items-center justify-center">
+    {!isLoading ? (
+      <FileUp className="w-5 h-5" />
+    ) : (
+      <SpinnerCircular
+        size={18}
+        thickness={180}
+        speed={140}
+        color="white"
+      />
+    )}
+  </div>
+</button>
+
+</div>
           </form>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default CustomerRegChatbot
+export default TripPlannerChatbot
