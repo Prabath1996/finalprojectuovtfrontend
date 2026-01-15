@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   MapPin,
+  BotMessageSquare,
   Utensils,
   Coffee,
   Hotel,
@@ -84,7 +85,7 @@ const Home = () => {
     { id: "customer", icon: UserRound, label: "Customer List" },
     { id: "trips", icon: Plane, label: "Travel Recommondation" },
     { id: "chatbot", icon: NotebookPen, label: "Customer Register" },
-    { id: "tripplanner", icon: Map, label: "Trip Planner" },
+    { id: "tripplanner", icon: BotMessageSquare, label: "Support Buddy" },
     { id: "settings", icon: Settings, label: "Settings" },
   ];
 
