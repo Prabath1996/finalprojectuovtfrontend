@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { Send, MapPin, Compass, Plane, Bot, User, FileUp, Upload } from "lucide-react"
+import { Send, MapPin, Compass, Plane, Bot, User, Download, X } from "lucide-react"
 import axios from "axios"
 import { SpinnerCircular } from 'spinners-react';
 
@@ -17,15 +17,13 @@ const TripPlannerChatbot = () => {
     },
   ]);
  
-  const [isUploadDisabled, setIsUploadDisabled] = useState(false);
-
-
   const [inputValue, setInputValue] = useState("")
   const [isTyping, setIsTyping] = useState(false)
-  const[isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef(null)
+  const [showPreview, setShowPreview] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
+  const previewRef = useRef(null)
 
-  const fileInputRef = useRef(null)
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
@@ -85,60 +83,43 @@ const formattedText = (text) => {
   return formattedLines.join("\n");
 };
 
-// File upload handler
-const handleFileUpload = async (files) => {
-  if (!files || files.length === 0) return;
-
-  const file = files[0];
-  const formData = new FormData();
-  formData.append("file", file);
-
-  setIsLoading(true);
-
-  try {
-    await axios.post("http://localhost:5001/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    setIsUploadDisabled(true);
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        sender: "bot",
-        text: `File "${file.name}" uploaded successfully! You can now ask questions related to its content.`,
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
-
-    setTimeout(() => {
-      setIsUploadDisabled(false);
-      setIsLoading(false);
-    }, 5000);
-
-  } catch (error) {
-    setIsLoading(false);
-    setIsUploadDisabled(false);
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        sender: "bot",
-        text: "Failed to upload file. Please try again.",
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
+// Download handler
+const handleDownload = async () => {
+  if (messages.length <= 1) {
+    alert("No travel plan to download. Start chatting first!");
+    return;
   }
+
+  setShowPreview(true);
 };
 
+// Generate PDF
+const generatePDF = async () => {
+  try {
+    setIsDownloading(true);
+    
+    // Dynamically import html2pdf for PDF generation
+    const html2pdf = (await import('html2pdf.js')).default;
+
+    const element = previewRef.current;
+    const opt = {
+      margin: 10,
+      filename: 'travel-plan.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+    
+    setIsDownloading(false);
+    setShowPreview(false);
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('Failed to generate PDF. Please try again.');
+    setIsDownloading(false);
+  }
+};
 
   useEffect(() => {
     scrollToBottom()
@@ -249,7 +230,7 @@ const handleFileUpload = async (files) => {
 
               <div className="max-w-[70%]">
                 <div
-                  className={`px-4 py-3 rounded-2xl text-white ${
+                  className={`px-4 py-3 rounded-2xl text-white whitespace-pre-wrap ${
                     msg.sender === "bot"
                       ? "bg-white/10 border border-white/20"
                       : "bg-gradient-to-r from-cyan-400 to-blue-500"
@@ -293,48 +274,102 @@ const handleFileUpload = async (files) => {
             <button
               type="submit"
               disabled={!inputValue.trim()}
-              className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all transform hover:scale-105 active:scale-95 disabled:transform-none flex items-center justify-center gap-2 hover: cursor"
+              className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all transform hover:scale-105 active:scale-95 disabled:transform-none flex items-center justify-center gap-2"
             >
               <Send className="w-5 h-5" />
             </button>
-            <div>
-  {/* Hidden file input */}
-  <input
-    type="file"
-    ref={fileInputRef}
-    style={{ display: "none" }}
-    onChange={(e) => handleFileUpload(e.target.files)}
-  />
-
-  {/* Styled button */}
-<button
-  type="button"
-  disabled={isUploadDisabled || isLoading}
-  onClick={() => fileInputRef.current?.click()}
-  className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 
-             hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 
-             disabled:cursor-not-allowed text-white font-semibold rounded-xl 
-             transition-all transform hover:scale-105 active:scale-95 
-             flex items-center justify-center"
->
-  <div className="w-5 h-5 flex items-center justify-center">
-    {!isLoading ? (
-      <FileUp className="w-5 h-5" />
-    ) : (
-      <SpinnerCircular
-        size={18}
-        thickness={180}
-        speed={140}
-        color="white"
-      />
-    )}
-  </div>
-</button>
-
-</div>
+            <button
+              type="button"
+              onClick={handleDownload}
+              className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-white font-semibold rounded-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center"
+            >
+              <Download className="w-5 h-5" />
+            </button>
           </form>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-800">Travel Plan Preview</h2>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition"
+              >
+                <X className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Preview Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div
+                ref={previewRef}
+                className="bg-gradient-to-br from-blue-50 to-slate-50 p-8 rounded-lg"
+              >
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl font-bold text-gray-800 mb-2">Your Travel Plan</h1>
+                  <p className="text-gray-600">Generated on {new Date().toLocaleDateString()}</p>
+                </div>
+
+                <div className="space-y-6">
+                  {(() => {
+                    // Find the last bot message
+                    const lastBotMessage = [...messages].reverse().find((msg) => msg.sender === "bot");
+                    return lastBotMessage ? (
+                      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div className="flex items-start gap-3 mb-4">
+                          <div className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                            Travel Plan Summary
+                          </div>
+                          <span className="text-xs text-gray-500">{lastBotMessage.timestamp}</span>
+                        </div>
+                        <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-base">
+                          {lastBotMessage.text}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <p className="text-gray-500">No travel plan generated yet.</p>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowPreview(false)}
+                className="flex-1 px-4 py-3 rounded-lg border-2 border-gray-300 text-gray-800 font-semibold hover:bg-gray-100 transition"
+              >
+                Close
+              </button>
+              <button
+                onClick={generatePDF}
+                disabled={isDownloading}
+                className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 text-white font-semibold transition flex items-center justify-center gap-2"
+              >
+                {isDownloading ? (
+                  <>
+                    <SpinnerCircular size={18} thickness={180} speed={140} color="white" />
+                    Generating PDF...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5" />
+                    Download as PDF
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
