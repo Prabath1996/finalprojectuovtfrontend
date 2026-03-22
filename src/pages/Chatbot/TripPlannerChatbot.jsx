@@ -143,8 +143,8 @@ const generatePDF = async () => {
     setIsTyping(true)
 
     try {
-      const response = await axios.post("http://localhost:5001/chat", {
-        query: text
+      const response = await axios.post("http://localhost:5005/ask", {
+        question: text
       })
 
       const botMessage = {
