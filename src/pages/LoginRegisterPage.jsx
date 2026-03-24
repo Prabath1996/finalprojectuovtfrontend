@@ -157,6 +157,9 @@ const LoginRegisterPage = () => {
                             res.data.message || "Logged in successfully!"
                           );
                           console.log("Login Response:", res.data);
+
+                          // Save username
+                          localStorage.setItem("username", res.data.user.username);
                           navigate("/dashboard");
                         } catch (error) {
                           if (error.response) {
