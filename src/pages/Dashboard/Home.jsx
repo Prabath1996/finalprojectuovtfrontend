@@ -40,8 +40,7 @@ import Loading from "../../components/Loading";
 import CustomerRegChatbot from "../Chatbot/CustomerRegChatbot";
 import TravelRecommChatbot from "../Chatbot/TravelRecommChatbot";
 import TripPlannerChatbot from "../Chatbot/TripPlannerChatbot";
-import { useTranslation } from "react-i18next";
-
+import CustomerList from "../CustomerList";
 const CustomerRegisterChatbot = () => <CustomerRegChatbot />;
 const TravelModeRecomChatbot = () => <TravelRecommChatbot />;
 
@@ -55,8 +54,8 @@ const Home = () => {
 
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { t } = useTranslation();
 
+  // Get username from localStorage
   const [username, setUsername] = useState("");
 
   const navigate = useNavigate();
@@ -87,8 +86,6 @@ const Home = () => {
     toast.success("Logged out successfully!", { autoclose: 2000 });
   };
 
-
-
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
@@ -110,14 +107,7 @@ const Home = () => {
       });
   }, []);
 
-  const sidebarItems = [
-    { id: "dashboard", icon: LayoutDashboard, label: t("sidebar.home") },
-    { id: "customer", icon: UserRound, label: t("sidebar.customerList") },
-    { id: "trips", icon: Plane, label: t("sidebar.travelRecommendations") },
-    { id: "chatbot", icon: NotebookPen, label: t("sidebar.customerRegister") },
-    { id: "tripplanner", icon: BotMessageSquare, label: t("sidebar.supportBuddy") },
-    { id: "settings", icon: Settings, label: t("sidebar.settings") },
-  ];
+  
 
   const stats = [
     {
@@ -341,7 +331,7 @@ const Home = () => {
               className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors"
             >
               <LogOut className="w-5 h-5" />
-              <span className="font-medium">{t("logout")}</span>
+              <span className="font-medium">Logout</span>
             </button>
           </div>
         </div>
@@ -397,20 +387,19 @@ const Home = () => {
         </header>
 
         {/* Dynamic Content */}
-        <div className="flex-1 overflow-y-auto p-6 scroll-smooth">
+        <div className="flex-1 overflow-y-auto p-6 scroll-smooth flex-1 overflow-y-auto p-6 scroll-smooth">
           {activeTab === "dashboard" && (
             <div className="space-y-8 animate-in fade-in duration-500">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                    {t("welcome")},{username.toUpperCase() ? `${username.toUpperCase()}` : ""}!
+                    Welcome back, Alex!
                   </h2>
                   <p className="text-slate-500 dark:text-slate-400">
                     Where are we heading next?
                   </p>
                 </div>
               </div>
-
               {/* Stats Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map((stat, i) => (
@@ -680,21 +669,40 @@ const Home = () => {
             </div>
           )}
 
-          {activeTab === "chatbot" && (
-            <div className="h-full animate-in zoom-in-95 duration-300">
-              <CustomerRegisterChatbot />
-            </div>
-          )}
-          {activeTab === "trips" && (
-            <div className="h-full animate-in zoom-in-95 duration-300">
-              <TravelModeRecomChatbot />
-            </div>
-          )}
-          {activeTab === "tripplanner" && (
-            <div className="h-full animate-in zoom-in-95 duration-300">
-              <TripPlannerChatbot />
-            </div>
-          )}
+        {activeTab === "chatbot" && (
+  <div className="h-full flex gap-4 animate-in zoom-in-95 duration-300">
+    {/* Customer List Sidebar */}
+    <div className="w-80 flex-shrink-0 overflow-y-auto bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-2xl">
+      <CustomerList />
+    </div>
+    {/* Chatbot Main Area */}
+    <div className="flex-1 overflow-hidden">
+      <CustomerRegisterChatbot />
+    </div>
+  </div>
+)}
+
+{activeTab === "trips" && (
+  <div className="h-full flex gap-4 animate-in zoom-in-95 duration-300">
+    <div className="w-80 flex-shrink-0 overflow-y-auto bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-2xl">
+      <CustomerList />
+    </div>
+    <div className="flex-1 overflow-hidden">
+      <TravelModeRecomChatbot />
+    </div>
+  </div>
+)}
+
+{activeTab === "tripplanner" && (
+  <div className="h-full flex gap-4 animate-in zoom-in-95 duration-300">
+    <div className="w-80 flex-shrink-0 overflow-y-auto bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-2xl">
+      <CustomerList />
+    </div>
+    <div className="flex-1 overflow-hidden">
+      <TripPlannerChatbot />
+    </div>
+  </div>
+)}
 
           {activeTab !== "dashboard" &&
             activeTab !== "chatbot" &&
@@ -719,7 +727,8 @@ const Home = () => {
                   Return to Overview
                 </button>
               </div>
-            )}
+            )
+            }
         </div>
       </main>
 
