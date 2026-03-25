@@ -41,6 +41,7 @@ import CustomerRegChatbot from "../Chatbot/CustomerRegChatbot";
 import TravelRecommChatbot from "../Chatbot/TravelRecommChatbot";
 import TripPlannerChatbot from "../Chatbot/TripPlannerChatbot";
 import CustomerList from "../CustomerList";
+import { useTranslation } from "react-i18next";
 const CustomerRegisterChatbot = () => <CustomerRegChatbot />;
 const TravelModeRecomChatbot = () => <TravelRecommChatbot />;
 
@@ -51,6 +52,7 @@ const Home = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const { t } = useTranslation();
 
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
