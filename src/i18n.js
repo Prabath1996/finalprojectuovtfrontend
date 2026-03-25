@@ -31,8 +31,9 @@ const resources = {
             settings: "Settings",
         },
         travelRecommendationsbotText:"Hello! I'm your travel assistant. Where would you like to explore today?" ,
-         customerRegisterbotText:"Hello! I'm your customer registration agent. I can help you register customers. How can I assist you today?",
-         tripPlannerbottext:"Hello! I'm your trip planner. I can help you plan your trip and provide travel recommendations. How can I assist you today?"
+        customerRegisterbotText:"Hello! I'm your customer registration agent. I can help you register customers. How can I assist you today?",
+        tripPlannerbottext:"Hello! I'm your trip planner. I can help you plan your trip and provide travel recommendations. How can I assist you today?",
+        askAnything: "Ask me anything about your trip!"
     }
   },
   si: {
@@ -63,7 +64,8 @@ const resources = {
         },
         travelRecommendationsbotText:"හෙලෝ! මම ඔබේ ගමන් සහායකයා. අද ඔබ කොහේ ගමන් කිරීමට කැමතිද?" ,
         customerRegisterbotText:"හෙලෝ! මම ඔබේ පාරිභෝගික ලියාපදිංචි නියෝජිතයා. මම ඔබට පාරිභෝගිකයින් ලියාපදිංචි කිරීමට උදව් කළ හැක. අද ඔබට කෙසේ උදව් කළ හැකිද?",
-        tripPlannerbottext:"හෙලෝ! මම ඔබේ ගමන් සැලසුම්කරු. මම ඔබට ගමන සැලසුම් කිරීමට සහ ගමන් නිර්දේශ ලබා දීමට උදව් කළ හැක. අද ඔබට කෙසේ උදව් කළ හැකිද?"
+        tripPlannerbottext:"හෙලෝ! මම ඔබේ ගමන් සැලසුම්කරු. මම ඔබට ගමන සැලසුම් කිරීමට සහ ගමන් නිර්දේශ ලබා දීමට උදව් කළ හැක. අද ඔබට කෙසේ උදව් කළ හැකිද?",
+        askAnything: "ඔබගේ සංචාරය ගැන ඕනෑම දෙයක් මගෙන් අසන්න!"
 
     },
   },
@@ -95,7 +97,8 @@ const resources = {
         },
         travelRecommendationsbotText:"வணக்கம்! நான் உங்கள் பயண உதவியாளர். இன்று நீங்கள் எங்கே ஆராய விரும்புகிறீர்கள்?" ,
          customerRegisterbotText:"வணக்கம்! நான் உங்கள் வாடிக்கையாளர் பதிவு முகவர். நான் உங்களுக்கு வாடிக்கையாளர்களை பதிவு செய்ய உதவ முடியும். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?",
-         tripPlannerbottext:"வணக்கம்! நான் உங்கள் பயண திட்டமிடுபவர். நான் உங்களுக்கு பயணத்தை திட்டமிட உதவ முடியும் மற்றும் பயண பரிந்துரைகள் வழங்க முடியும். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?"
+         tripPlannerbottext:"வணக்கம்! நான் உங்கள் பயண திட்டமிடுபவர். நான் உங்களுக்கு பயணத்தை திட்டமிட உதவ முடியும் மற்றும் பயண பரிந்துரைகள் வழங்க முடியும். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?",
+          askAnything: "உங்கள் பயணம் பற்றி என்னிடம் ஏதாவது கேளுங்கள்!"
     }
   }
 };
