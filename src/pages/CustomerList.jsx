@@ -57,10 +57,8 @@ export default function CustomerList() {
             <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
               Customers
             </h2>
-          
+  
           </div>
-
-         
         </div>
 
        
@@ -104,10 +102,7 @@ export default function CustomerList() {
                     <p className="font-bold text-slate-900 dark:text-white text-sm truncate">
                       {customer.name?.toUpperCase() || "N/A"}
                     </p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(customer.status)}`}>
-                        {customer.status || "Unknown"}
-                      </span>
+                    <div className="flex items-center gap-2 mt-0.5">                
                       {customer.address && (
                         <span className="text-xs text-slate-400 truncate hidden sm:block">
                           📍 {customer.address}
