@@ -33,7 +33,27 @@ const resources = {
         travelRecommendationsbotText:"Hello! I'm your travel assistant. Where would you like to explore today?" ,
         customerRegisterbotText:"Hello! I'm your customer registration agent. I can help you register customers. How can I assist you today?",
         tripPlannerbottext:"Hello! I'm your trip planner. I can help you plan your trip and provide travel recommendations. How can I assist you today?",
-        askAnything: "Ask me anything about your trip!"
+        askAnything: "Ask me anything about your trip!",
+        budget_alerts: {
+    too_low_title: "Budget too low",
+    too_low_text: "Please enter a budget of 5000 LKR or more.",
+    too_high_title: "Budget too high!",
+    too_high_text: "You have entered {{inputBudget}} LKR, which exceeds your profile budget of {{storedBudget}} LKR.",
+    warning_high_title: "Budget seems high",
+    warning_low_title: "Budget seems low",
+    warning_high_text: "{{inputBudget}} LKR is relatively high compared to your registered budget.",
+    warning_low_text: "{{inputBudget}} LKR is relatively low compared to your registered budget.",
+    proceed_question: " Do you want to proceed?",
+    btn_proceed: "Proceed",
+    btn_change: "Change Value",
+    btn_ok: "OK",
+   
+  },
+   travel_chatbot: {
+    input_placeholder: "Enter your travel plan or budget..."
+  },
+  Error:"Please register a customer first!, error"
+
     }
   },
   si: {
@@ -65,7 +85,25 @@ const resources = {
         travelRecommendationsbotText:"හෙලෝ! මම ඔබේ ගමන් සහායකයා. අද ඔබ කොහේ ගමන් කිරීමට කැමතිද?" ,
         customerRegisterbotText:"හෙලෝ! මම ඔබේ පාරිභෝගික ලියාපදිංචි නියෝජිතයා. මම ඔබට පාරිභෝගිකයින් ලියාපදිංචි කිරීමට උදව් කළ හැක. අද ඔබට කෙසේ උදව් කළ හැකිද?",
         tripPlannerbottext:"හෙලෝ! මම ඔබේ ගමන් සැලසුම්කරු. මම ඔබට ගමන සැලසුම් කිරීමට සහ ගමන් නිර්දේශ ලබා දීමට උදව් කළ හැක. අද ඔබට කෙසේ උදව් කළ හැකිද?",
-        askAnything: "ඔබගේ සංචාරය ගැන ඕනෑම දෙයක් මගෙන් අසන්න!"
+        askAnything: "ඔබගේ සංචාරය ගැන ඕනෑම දෙයක් මගෙන් අසන්න!",
+        budget_alerts: {
+    too_low_title: "Budget එක මදි...",
+    too_low_text: "කරුණාකර 5000 LKR හෝ ඊට වැඩි budget එකක් ඇතුළත් කරන්න.",
+    too_high_title: "Budget එක වැඩියි!",
+    too_high_text: "ඔබේ Profile budget එක ({{storedBudget}} LKR) ඉක්මවා ඔබ {{inputBudget}} LKR ඇතුළත් කර ඇත.",
+    warning_high_title: "Budget එක ටිකක් වැඩියි වගේ",
+    warning_low_title: "Budget එක ටිකක් අඩුයි වගේ",
+    warning_high_text: "ඔබේ ලියාපදිංචි budget එකට සාපේක්ෂව {{inputBudget}} LKR යනු ඉහළ අගයකි.",
+    warning_low_text: "ඔබේ ලියාපදිංචි budget එකට සාපේක්ෂව {{inputBudget}} LKR යනු ඉතා අඩු අගයකි.",
+    proceed_question: " ඔබට ඉදිරියට යාමට අවශ්‍යද?",
+    btn_proceed: "ඉදිරියට යන්න",
+    btn_change: "අගය වෙනස් කරන්න",
+    btn_ok: "හරි",
+    
+  },travel_chatbot: {
+    input_placeholder:"ඔබේ සංචාරක සැලසුම හෝ Budget එක ඇතුළත් කරන්න..."
+  },
+    Error:"කරුණාකර පළමුව පාරිභෝගිකයෙකු ලියාපදිංචි කරන්න!"
 
     },
   },
@@ -98,7 +136,25 @@ const resources = {
         travelRecommendationsbotText:"வணக்கம்! நான் உங்கள் பயண உதவியாளர். இன்று நீங்கள் எங்கே ஆராய விரும்புகிறீர்கள்?" ,
          customerRegisterbotText:"வணக்கம்! நான் உங்கள் வாடிக்கையாளர் பதிவு முகவர். நான் உங்களுக்கு வாடிக்கையாளர்களை பதிவு செய்ய உதவ முடியும். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?",
          tripPlannerbottext:"வணக்கம்! நான் உங்கள் பயண திட்டமிடுபவர். நான் உங்களுக்கு பயணத்தை திட்டமிட உதவ முடியும் மற்றும் பயண பரிந்துரைகள் வழங்க முடியும். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்?",
-          askAnything: "உங்கள் பயணம் பற்றி என்னிடம் ஏதாவது கேளுங்கள்!"
+          askAnything: "உங்கள் பயணம் பற்றி என்னிடம் ஏதாவது கேளுங்கள்!",
+          budget_alerts: {
+    too_low_title: "பட்ஜெட் போதாது...",
+    too_low_text: "தயவுசெய்து 5000 LKR அல்லது அதற்கு மேற்பட்ட பட்ஜெட்டை உள்ளிடவும்.",
+    too_high_title: "பட்ஜெட் அதிகம்!",
+    too_high_text: "உங்கள் சுயவிவர பட்ஜெட்டை ({{storedBudget}} LKR) விட அதிகமாக {{inputBudget}} LKR ஐ உள்ளிட்டுள்ளீர்கள்.",
+    warning_high_title: "பட்ஜெட் அதிகமாகத் தெரிகிறது",
+    warning_low_title: "பட்ஜெட் குறைவாகத் தெரிகிறது",
+    warning_high_text: "உங்கள் பதிவுசெய்யப்பட்ட பட்ஜெட்டுடன் ஒப்பிடும்போது {{inputBudget}} LKR அதிகமானது.",
+    warning_low_text: "உங்கள் பதிவுசெய்யப்பட்ட பட்ஜெட்டுடன் ஒப்பிடும்போது {{inputBudget}} LKR மிகக் குறைவானது.",
+    proceed_question: " நீங்கள் தொடர விரும்புகிறீர்களா?",
+    btn_proceed: "தொடரவும்",
+    btn_change: "மதிப்பை மாற்றவும்",
+    btn_ok: "சரி",
+  },
+        travel_chatbot: {
+        input_placeholder: "உங்கள் பயணத் திட்டம் அல்லது பட்ஜெட்டை உள்ளிடவும்..."
+  } ,
+  Error:"தயவுசெய்து முதலில் ஒரு வாடிக்கையாளரைப் பதிவு செய்யவும்!"
     }
   }
 };
