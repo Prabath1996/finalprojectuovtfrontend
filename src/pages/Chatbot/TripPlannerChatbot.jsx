@@ -1,15 +1,18 @@
 import { useState, useRef, useEffect } from "react"
-import { Send, MapPin, Compass, Plane, Bot, User, FileUp, Upload } from "lucide-react"
+import ReactDOMServer from "react-dom/server";
+import { Send, MapPin, Compass, Plane, Bot, User, Download, X } from "lucide-react"
 import axios from "axios"
 import { SpinnerCircular } from 'spinners-react';
-
+import FormattedText from "../../components/FormattedText";
+import { useTranslation } from "react-i18next"
 
 const TripPlannerChatbot = () => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: "bot",
-      text: "Hello! I'm your Trip Planner Agent. Where would you like to explore today?",
+      text: t("askAnything"),
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -17,15 +20,13 @@ const TripPlannerChatbot = () => {
     },
   ]);
  
-  const [isUploadDisabled, setIsUploadDisabled] = useState(false);
-
-
   const [inputValue, setInputValue] = useState("")
   const [isTyping, setIsTyping] = useState(false)
-  const[isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef(null)
+  const [showPreview, setShowPreview] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
+  const previewRef = useRef(null)
 
-  const fileInputRef = useRef(null)
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
@@ -85,60 +86,127 @@ const formattedText = (text) => {
   return formattedLines.join("\n");
 };
 
-// File upload handler
-const handleFileUpload = async (files) => {
-  if (!files || files.length === 0) return;
+  // Download handler
+  const handleDownload = async () => {
+    if (messages.length <= 1) {
+      alert("No travel plan to download. Start chatting first!");
+      return;
+    }
 
-  const file = files[0];
-  const formData = new FormData();
-  formData.append("file", file);
+    setShowPreview(true);
+  };
 
-  setIsLoading(true);
-
+  // Generate PDF
+const generatePDF = async () => {
   try {
-    await axios.post("http://localhost:5001/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    setIsDownloading(true);
 
-    setIsUploadDisabled(true);
+    const html2pdf = (await import("html2pdf.js")).default;
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        sender: "bot",
-        text: `File "${file.name}" uploaded successfully! You can now ask questions related to its content.`,
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
+    // Get last bot message
+    const lastBotMessage = [...messages]
+      .reverse()
+      .find((msg) => msg.sender === "bot");
 
-    setTimeout(() => {
-      setIsUploadDisabled(false);
-      setIsLoading(false);
-    }, 5000);
+    // Create CLEAN HTML
+    const cleanHTML = `
+  <div style="font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; background: #f4f7fb; color: #1f2937; overflow: visible;">
+    
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 30px;">
+      <h1 style="margin: 0; font-size: 28px; color: #2563eb;">
+        ✈️ GuideBuddy Travel Plan
+      </h1>
+      <p style="margin-top: 5px; color: #6b7280; font-size: 14px;">
+        Generated on ${new Date().toLocaleDateString()}
+      </p>
+    </div>
 
-  } catch (error) {
-    setIsLoading(false);
-    setIsUploadDisabled(false);
+    <!-- Card -->
+    <div style="
+      background: #ffffff;
+      padding: 25px;
+      margin-bottom: 30px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      page-break-inside: avoid;
+    ">
+      
+      <div style="
+        font-size: 14px;
+        font-weight: 600;
+        color: #2563eb;
+        margin-bottom: 15px;
+      ">
+        Travel Plan Summary
+      </div>
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        sender: "bot",
-        text: "Failed to upload file. Please try again.",
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
+      ${
+        lastBotMessage
+          ? `<div style="
+               line-height: 1.8;
+               font-size: 15px;
+               color: #374151;
+             ">
+              ${ReactDOMServer.renderToStaticMarkup( 
+              <FormattedText text={lastBotMessage.text} /> )}
+             </div>`
+          : `<p style="color:#6b7280;">No travel plan generated yet.</p>`
+      }
+
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top: 50px; padding-bottom: 20px; text-align: center; font-size: 12px; color: #9ca3af;">
+      🌍 Powered by GuideBuddy Assistant
+    </div>
+
+  </div>
+`;
+
+    // 🧠 Create temporary container
+    const container = document.createElement("div");
+    container.innerHTML = cleanHTML;
+
+    document.body.appendChild(container);
+
+  const opt = {
+  margin: [10, 10, 20, 10], // 👈 add bottom margin
+  filename: "travel-plan.pdf",
+  image: { type: "jpeg", quality: 0.98 },
+
+  html2canvas: {
+    scale: 2,
+    backgroundColor: "#ffffff",
+    useCORS: true,
+    scrollY: 0
+  },
+
+  jsPDF: {
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
+  },
+
+  pagebreak: {
+    mode: ["css", "legacy"], // 👈 IMPORTANT FIX
+    avoid: "div"
   }
 };
 
+    await html2pdf().set(opt).from(container).save();
+
+    document.body.removeChild(container);
+
+    setIsDownloading(false);
+    setShowPreview(false);
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    alert("Failed to generate PDF. Please try again.");
+    setIsDownloading(false);
+  }
+};
 
   useEffect(() => {
     scrollToBottom()
@@ -162,14 +230,16 @@ const handleFileUpload = async (files) => {
     setIsTyping(true)
 
     try {
-      const response = await axios.post("http://localhost:5001/chat", {
-        query: text
+      const response = await axios.post("http://localhost:5005/ask", {
+        question: text
       })
+      console.log(response.data);
+      
 
       const botMessage = {
         id: Date.now() + 1,
         sender: "bot",
-        text: formattedText(response.data?.response) || "No response from server.",
+        text: formattedText(response.data.answer) || "No response from server.",
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -201,7 +271,7 @@ const handleFileUpload = async (files) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="w-full h-full bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex flex-col">
       <div className="relative w-full max-w-4xl h-[90vh] flex flex-col">
         {/* Header */}
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-t-2xl p-5">
@@ -249,7 +319,7 @@ const handleFileUpload = async (files) => {
 
               <div className="max-w-[70%]">
                 <div
-                  className={`px-4 py-3 rounded-2xl text-white ${
+                  className={`px-4 py-3 rounded-2xl text-white whitespace-pre-wrap ${
                     msg.sender === "bot"
                       ? "bg-white/10 border border-white/20"
                       : "bg-gradient-to-r from-cyan-400 to-blue-500"
@@ -293,48 +363,119 @@ const handleFileUpload = async (files) => {
             <button
               type="submit"
               disabled={!inputValue.trim()}
-              className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all transform hover:scale-105 active:scale-95 disabled:transform-none flex items-center justify-center gap-2 hover: cursor"
+              className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all transform hover:scale-105 active:scale-95 disabled:transform-none flex items-center justify-center gap-2"
             >
               <Send className="w-5 h-5" />
             </button>
-            <div>
-  {/* Hidden file input */}
-  <input
-    type="file"
-    ref={fileInputRef}
-    style={{ display: "none" }}
-    onChange={(e) => handleFileUpload(e.target.files)}
-  />
-
-  {/* Styled button */}
-<button
-  type="button"
-  disabled={isUploadDisabled || isLoading}
-  onClick={() => fileInputRef.current?.click()}
-  className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 
-             hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 
-             disabled:cursor-not-allowed text-white font-semibold rounded-xl 
-             transition-all transform hover:scale-105 active:scale-95 
-             flex items-center justify-center"
->
-  <div className="w-5 h-5 flex items-center justify-center">
-    {!isLoading ? (
-      <FileUp className="w-5 h-5" />
-    ) : (
-      <SpinnerCircular
-        size={18}
-        thickness={180}
-        speed={140}
-        color="white"
-      />
-    )}
-  </div>
-</button>
-
-</div>
+            <button
+              type="button"
+              onClick={handleDownload}
+              className="px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-white font-semibold rounded-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center"
+            >
+              <Download className="w-5 h-5" />
+            </button>
           </form>
         </div>
       </div>
+
+       {/* Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-800">
+                Travel Plan - GuideBuddy
+              </h2>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition"
+              >
+                <X className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Preview Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div
+                ref={previewRef}
+                className="bg-gradient-to-br from-blue-50 to-slate-50 p-8 rounded-lg"
+              >
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                    Your Travel Plan - GuideBuddy
+                  </h1>
+                  <p className="text-gray-600">
+                    Generated on {new Date().toLocaleDateString()}
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  {(() => {
+                    // Find the last bot message
+                    const lastBotMessage = [...messages]
+                      .reverse()
+                      .find((msg) => msg.sender === "bot");
+                    return lastBotMessage ? (
+                      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div className="flex items-start gap-3 mb-4">
+                          <div className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                            Travel Plan Summary
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            {lastBotMessage.timestamp}
+                          </span>
+                        </div>
+                        <div className="text-gray-700 whitespace-pre-wrap leading-relaxed text-base">
+                          <FormattedText text={lastBotMessage.text} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <p className="text-gray-500">
+                          No travel plan generated yet.
+                        </p>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowPreview(false)}
+                className="flex-1 px-4 py-3 rounded-lg border-2 border-gray-300 text-gray-800 font-semibold hover:bg-gray-100 transition"
+              >
+                Close
+              </button>
+              <button
+                onClick={generatePDF}
+                disabled={isDownloading}
+                className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:from-gray-500 disabled:to-gray-600 text-white font-semibold transition flex items-center justify-center gap-2"
+              >
+                {isDownloading ? (
+                  <>
+                    <SpinnerCircular
+                      size={18}
+                      thickness={180}
+                      speed={140}
+                      color="white"
+                    />
+                    Generating PDF...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5" />
+                    Download as PDF
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
