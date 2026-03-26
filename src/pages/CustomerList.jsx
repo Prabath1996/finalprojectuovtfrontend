@@ -3,10 +3,13 @@ import {
   UserRound, MoreVertical, MessageSquare, MapPin,
   Utensils, Coffee, Hotel, Plane, Clock, Wallet,
   Pencil, Trash2, CheckCircle, AlertCircle, Search,
-  Filter, X, ChevronDown
+  Filter, X, ChevronDown,
+  Expand
 } from "lucide-react";
 import Loading from "../components/Loading";
-
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { addCustomer } from '../context/redux/customerSlice';
 export default function CustomerList() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +17,7 @@ export default function CustomerList() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [expandedCard, setExpandedCard] = useState(null);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-
+ 
   const getStatusStyle = (status) => {
     switch (status?.toLowerCase()) {
       case "active": return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400";
@@ -47,6 +50,12 @@ export default function CustomerList() {
       filterStatus === "all" || c.status?.toLowerCase() === filterStatus;
     return matchSearch && matchStatus;
   });
+
+  const expandedCustomer=(customer)=>{
+    setExpandedCard(isExpanded ? null : customer._id);
+  }
+
+  const dispatch = useDispatch();
 
   return (
     <div className="flex flex-col h-full">
@@ -90,7 +99,13 @@ export default function CustomerList() {
                 {/* Card Top Row - Always Visible */}
                 <div
                   className="flex items-center gap-3 p-4 cursor-pointer"
-                  onClick={() => setExpandedCard(isExpanded ? null : customer._id)}
+                  onClick={() => {
+                    setExpandedCard(isExpanded ? null : customer._id);
+                    //console.log(customer);
+                   dispatch(addCustomer(customer));
+                    console.log("Customer stored:"+ JSON.stringify(customer));
+                    
+                  }}
                 >
                   {/* Avatar */}
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400/20 to-blue-500/20 flex items-center justify-center border border-cyan-500/20 flex-shrink-0">
@@ -129,11 +144,13 @@ export default function CustomerList() {
                       <InfoRow icon={<Plane />} label={customer.mode_of_travel} />
                       <InfoRow icon={<Clock />} label={customer.duration} />
                       <InfoRow icon={<Wallet />} label={customer.budget} />
+                     
                     </div>
 
                     
                   </div>
                 )}
+              
               </div>
             );
           })

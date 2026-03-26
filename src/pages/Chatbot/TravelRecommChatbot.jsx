@@ -28,6 +28,8 @@ const TravelRecommChatbot = () => {
   const customersList = useSelector((state) => state.customers.customers);
   const lastCustomer = customersList.length > 0 ? customersList[customersList.length - 1] : null;
 
+  console.log(customersList);
+  
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -259,7 +261,7 @@ const generatePDF = async () => {
   const handleSendMessage = async (text) => {
     if (!text.trim()) return;
 
-    if (!lastCustomer) {
+   if (!lastCustomer) {
       Swal.fire({
         icon: 'error',
         title: t('budget_alerts.no_customer_title'),
