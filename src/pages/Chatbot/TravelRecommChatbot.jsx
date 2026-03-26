@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import { SpinnerCircular } from 'spinners-react';
 import { useTranslation } from "react-i18next";
 import { useSelector } from 'react-redux';
-import FormattedText from "../../components/FormattedText.jsx";
+import FormattedText from "../../components/FormattedText";
 const TravelRecommChatbot = () => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState([
@@ -28,7 +28,7 @@ const TravelRecommChatbot = () => {
   const customersList = useSelector((state) => state.customers.customers);
   const lastCustomer = customersList.length > 0 ? customersList[customersList.length - 1] : null;
 
-  console.log(customersList);
+ // console.log(customersList);
   
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -88,27 +88,20 @@ const generatePDF = async () => {
     setIsDownloading(true);
     const html2pdf = (await import("html2pdf.js")).default;
 
-    // 1. LocalStorage එකෙන් දත්ත ලබාගැනීම
     const savedData = JSON.parse(localStorage.getItem("userTravelPlan"));
-    
-    // 2. Chat එකේ අන්තිම Bot message එක සොයාගැනීම
     const lastBotMessage = [...messages].reverse().find((msg) => msg.sender === "bot");
 
-    // 3. Variables ටික Scope එකෙන් පිටතට ගැනීම (Default values සහිතව)
-    let startLoc = "N/A";
-    let endLoc = "N/A";
-    let budget = "N/A";
+    let startLoc = savedData?.start_location || "N/A";
+    let endLoc = savedData?.end_location || "N/A";
+    let budget = savedData?.budget || "N/A";
 
-    if (savedData) {
-      startLoc = savedData.start_location || "N/A";
-      endLoc = savedData.end_location || "N/A";
-      budget = savedData.budget || "N/A";
-      console.log(`ගමන ආරම්භය: ${startLoc} සිට ${endLoc} දක්වා`);
-    } else {
-      console.warn("LocalStorage එකේ දත්ත නැත.");
-    }
+    const formattedContent = lastBotMessage?.text
+      ? ReactDOMServer.renderToStaticMarkup(
+          <FormattedText text={lastBotMessage.text} />
+        )
+      : "No plan generated.";
 
-    const cleanHTML = `
+     const cleanHTML = `
   <div style="font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7f9; padding: 40px; color: #2d3748;">
     <div style="max-width: 800px; margin: auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
       
@@ -144,8 +137,8 @@ const generatePDF = async () => {
              Detailed Itinerary
           </h3>
           
-          <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 30px; border-radius: 12px; line-height: 1.8; font-size: 14px; color: #4a5568; white-space: pre-line;">
-            ${lastBotMessage ? lastBotMessage.text : "Your personalized itinerary is being prepared..."}
+           <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 30px; border-radius: 12px; line-height: 1.6; font-size: 14px; color: #4a5568; overflow-wrap: break-word;">
+            ${formattedContent}
           </div>
         </div>
 
@@ -158,23 +151,24 @@ const generatePDF = async () => {
     </div>
   </div>`;
 
-    // PDF එක සෑදීම
     const container = document.createElement("div");
-    container.innerHTML = FormattedText(FormattedText(cleanHTML));
+    container.innerHTML = cleanHTML;
     document.body.appendChild(container);
 
-    const opt = {
-      margin: 10,
-      filename: `Travel_Plan_${startLoc}_to_${endLoc}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 3, useCORS: true },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-    };
+    await html2pdf()
+      .set({
+        margin: 10,
+        filename: "travel-plan.pdf",
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4" }
+      })
+      .from(container)
+      .save();
 
-    await html2pdf().set(opt).from(container).save();
     document.body.removeChild(container);
     setIsDownloading(false);
-    if(setShowPreview) setShowPreview(false); // පරීක්ෂා කර බැලීම
+    setShowPreview(false);
+
   } catch (error) {
     console.error("PDF Error:", error);
     setIsDownloading(false);
